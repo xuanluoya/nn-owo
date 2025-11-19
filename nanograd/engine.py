@@ -24,13 +24,13 @@ class Value:
         self.label = label  # 可选标签（如 'x', 'y', 'loss'）
 
     # 包装输出
-    def __repr__(self) -> str:
+    def __repr__(self):
         # 方便调试的输出：仅显示当前节点的数值。
         return f"Value(data={self.data})"
 
     # 基本算子重载
     # 加法
-    def __add__(self, other: Union["Value", float, int]) -> "Value":
+    def __add__(self, other):
         # 如果是一个普通的数字（1， 2， 3），我们将会把它包装成Value值。
         other = other if isinstance(other, Value) else Value(other)
         out = Value(self.data + other.data, (self, other), "+")
@@ -48,11 +48,11 @@ class Value:
         return out
 
     # 处理减法
-    def __sub__(self, other: Union["Value", float, int]) -> "Value":
+    def __sub__(self, other):
         return self + (-other)
 
     # 乘法
-    def __mul__(self, other: Union["Value", float, int]) -> "Value":
+    def __mul__(self, other):
         other = other if isinstance(other, Value) else Value(other)
         out = Value(self.data * other.data, (self, other), "*")
 
@@ -65,13 +65,13 @@ class Value:
         return out
 
     # 除法
-    def __truediv__(self, other: Union["Value", float, int]) -> "Value":
+    def __truediv__(self, other):
         other = other if isinstance(other, Value) else Value(other)
         # 从数学上说，a/b = a * (1/b) = a * b**-1
         return self * other**-1
 
     # 幂运算
-    def __pow__(self, other: Union["Value", float, int]) -> "Value":
+    def __pow__(self, other):
         assert isinstance(other, (int, float)), "Only supporting int/float powers now."
         out = Value(self.data**other, (self,), f"**{other}")
 
@@ -85,7 +85,7 @@ class Value:
         return out
 
     # 调转运算
-    def __radd__(self, other: Union["Value", float, int]) -> "Value":
+    def __radd__(self, other):
         return self + other
 
     # __remul__用来处理 2 * Value 的状态。
@@ -95,24 +95,24 @@ class Value:
     # 解释器会在这时候调用__rmul__，尝试交换两个数（将a*b变成b*a）
     # 这时候就又变成了x.__mul__(2)，问题解决。
     # 我们需要声明一下，告诉编译器我们知道怎么办：
-    def __rmul__(self, other: Union["Value", float, int]) -> "Value":
+    def __rmul__(self, other):
         return self * other
 
-    def __rsub__(self, other: Union["Value", float, int]) -> "Value":
+    def __rsub__(self, other):
         # other - self = other + (-self)
         return other + (-self)
 
-    def __rtruediv__(self, other: Union["Value", float, int]) -> "Value":
+    def __rtruediv__(self, other):
         # other / self = other * self**-1
         return self * other**-1
 
     # 处理负数数据（出现-x行为）
-    def __neg__(self) -> "Value":
+    def __neg__(self):
         return self * -1
 
     # 常用函数
     # 双曲正切函数
-    def tanh(self) -> "Value":
+    def tanh(self):
         x = self.data
         # 自制的函数有溢出风险
         # t = (math.exp(2*x) - 1) / (math.exp(2*x) + 1)
@@ -127,7 +127,7 @@ class Value:
         return out
 
     # 指数函数的前向计算和反向传播规则。
-    def exp(self) -> "Value":
+    def exp(self):
         x = self.data
         # 对应数学指数函数：y = e^x
         # 计算出 e^x 并存入节点集
@@ -149,7 +149,7 @@ class Value:
         return out
 
     # 自动拓扑反向传播
-    def backward(self) -> None:
+    def backward(self):
         topo = []
         # 已访问的节点
         visited = set()
